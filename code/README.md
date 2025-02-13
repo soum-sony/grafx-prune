@@ -29,6 +29,13 @@ CUDA_VISIBLE_DEVICES=0 python3 train.py \
     dataset=medley \
     song=TablaBreakbeatScience_RockSteady
 ```
+``` bash
+CUDA_VISIBLE_DEVICES=0 python3 train.py \
+    config=prune_hybrid_1e_2 \
+    dataset=mixing_secrets_excerpts \
+    song=DaimonB_AnotherLife2
+```
+
 
 To simply train a full mixing console, you can pass `config=mixing_console_full` instead.
 All the arguments can be overriden from the cli. For more details, see `configs/base.yaml`.

@@ -8,7 +8,10 @@ from data.mixing_secrets.load import (
     get_mixing_secrets_song_list,
     load_mixing_secrets_metadata,
 )
-
+from data.mixing_secrets_excerpts.load import (
+    get_mixing_secrets_excerpts_song_list,
+    load_mixing_secrets_excerpts_metadata,
+)
 
 def detach_base_dir(x, d=4):
     return "/".join(x.split("/")[-d:])
@@ -20,6 +23,8 @@ def load_metadata(dataset, song):
             return load_medley_metadata(song)
         case "mixing_secrets":
             return load_mixing_secrets_metadata(song)
+        case "mixing_secrets_excerpts":
+            return load_mixing_secrets_excerpts_metadata(song)
         case _:
             assert False
 
@@ -32,6 +37,10 @@ def get_song_list(dataset, mode, min_num_inputs=0, max_num_inputs=150):
             )
         case "mixing_secrets":
             return get_mixing_secrets_song_list(
+                mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
+            )
+        case "mixing_secrets_excerpts":
+            return get_mixing_secrets_excerpts_song_list(
                 mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
             )
         case _:

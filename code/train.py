@@ -20,10 +20,21 @@ def create_log_directory(args):
     if args.debug:
         args.name = "debug"
     else:
+
+        print(args.song)
         song = args.song.replace("/", "_")
         args.name = f"{args.dataset}_{song}"
     args.save_dir = join(args.base_dir, args.name)
+    print(args.save_dir)
+    if os.path.exists(args.save_dir):
+        if args.debug:
+            os.system(f"rm -rf {args.save_dir}")
+        else:
+            print(f"Directory {args.save_dir} already exists")
+            return False
     os.makedirs(args.save_dir, exist_ok=True)
+    return True
+    
 
 
 def setup_loggers(args):
@@ -46,35 +57,37 @@ def setup_loggers(args):
 
 def run_train(args):
     torch.manual_seed(42)
-    create_log_directory(args)
-    run, logger = setup_loggers(args)
+    print(args)
+    if create_log_directory(args):
+  
+        run, logger = setup_loggers(args)
 
-    max_steps = args.total_epochs * args.steps_per_epoch
+        max_steps = args.total_epochs * args.steps_per_epoch
 
-    trainer = pl.Trainer(
-        logger=logger,
-        enable_checkpointing=True,
-        default_root_dir=args.base_dir,
-        max_steps=max_steps,
-        accelerator="gpu",
-        devices=1,
-        strategy="auto",
-        fast_dev_run=args.debug,
-        num_sanity_val_steps=0,
-        check_val_every_n_epoch=1,
-        # detect_anomaly=True,
-    )
+        trainer = pl.Trainer(
+            logger=logger,
+            enable_checkpointing=True,
+            default_root_dir=args.base_dir,
+            max_steps=max_steps,
+            accelerator="gpu",
+            devices=1,
+            strategy="auto",
+            fast_dev_run=args.debug,
+            num_sanity_val_steps=0,
+            check_val_every_n_epoch=1,
+            # detect_anomaly=True,
+        )
 
-    args_cont = OmegaConf.to_container(args)
-    solver = MusicMixingConsoleSolver(args_cont)
-    datamodule = SingleTrackOverfitDataModule(args_cont)
+        args_cont = OmegaConf.to_container(args)
+        solver = MusicMixingConsoleSolver(args_cont)
+        datamodule = SingleTrackOverfitDataModule(args_cont)
 
-    if len(args.processors) != 0:
-        trainer.fit(solver, datamodule)
-    trainer.test(solver, datamodule)
+        if len(args.processors) != 0:
+            trainer.fit(solver, datamodule)
+        trainer.test(solver, datamodule)
 
-    if args.wandb:
-        run.finish()
+        if args.wandb:
+            run.finish()
 
 
 def run_trains(args):
@@ -82,6 +95,7 @@ def run_trains(args):
     for dataset in args.datasets:
         l = get_song_list(mode=args.dataset_split, dataset=dataset)
         song_list += [(dataset, song) for song in l]
+        print("song_list", song_list)
 
     rng = np.random.RandomState(0)
     rng.shuffle(song_list)
@@ -108,10 +122,12 @@ def setup_args():
     args = OmegaConf.load(base_config_dir)
 
     cli_args = OmegaConf.from_cli()
+    # print("cli_args", cli_args)
     if "config" in cli_args:
         config_name = cli_args.pop("config")
         config_dir = join(script_path, f"configs/{config_name}.yaml")
         config_args = OmegaConf.load(config_dir)
+        # print("config_args", config_args)
         args = OmegaConf.merge(args, config_args)
     args = OmegaConf.merge(args, cli_args)
 

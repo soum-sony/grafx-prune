@@ -1,5 +1,5 @@
 project: grafx_prune # project name that will be used in wandb
-base_dir: /workspace/grafx_prune # base directory that logs are saved
+base_dir: /home/soumya/workspace/grafx_prune_test # base directory that logs are saved
 
 id: null
 debug: false
@@ -17,6 +17,7 @@ split_id: 0
 datasets: 
   - medley
   - mixing_secrets
+  - mixing_secrets_excerpts
 dataset_split: valid
 
 dataset: null

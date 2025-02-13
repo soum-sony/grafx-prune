@@ -73,6 +73,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             )
 
         self.audio_processors = nn.ModuleDict(audio_processors)
+        
 
     def init_graph_and_parameters(self):
         self.node_configs = NodeConfigs(self.processors)
@@ -207,7 +208,10 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             plt.close(fig)
 
     def forward(self, batch, mask_weight):
-        mix_pred, intermediates_list, _ = render_grafx(
+        print("in forward, audio processor", self.audio_processors)
+        print("in forward graph parameters", self.graph_parameters)
+        # print("in forward render data", self.render_data)
+        mix_pred, intermediates_list, intermediate_outputs  = render_grafx(
             self.audio_processors,
             batch["source"].float(),
             self.graph_parameters,
@@ -215,7 +219,11 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             common_parameters={"drywet_weight": mask_weight},
             parameters_grad=self.training,
         )
-        return mix_pred, intermediates_list
+        print("in forward, mix_pred", mix_pred.shape)
+        print("in forward, intermediates_list", intermediates_list)
+        print("in forward, intermediate_outputs", intermediate_outputs.shape)
+        exit(0)
+        return mix_pred, intermediates_list, intermediate_outputs
 
     def get_weight(self, prune_mask=None):
         weight = torch.sigmoid(self.soft_mask)
@@ -227,7 +235,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         # forward
         mix = batch["mix"].float()
         weight = self.get_weight()
-        mix_pred, intermediates_list = self.forward(batch, weight)
+        mix_pred, intermediates_list, _ = self.forward(batch, weight)
         reg_loss_dict = self.aggregate_processor_loss(intermediates_list)
 
         # match
@@ -248,6 +256,9 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         if idx % self.num_steps_per_log == 0:
             weight_dict = self.log_weight()
             self.log_dict(**match_loss_dict, **reg_loss_dict, **weight_dict)
+        
+    
+
 
         return total_loss
 
@@ -282,7 +293,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         losses = []
         for _, batch in enumerate(tqdm(self.eval_batches, desc=desc)):
             mix = batch["mix"].float()
-            mix_pred, _ = self.forward(batch, weight)
+            mix_pred, _ , _= self.forward(batch, weight)
             match_loss_dict = self.match_loss(mix, mix_pred)
             losses.append(match_loss_dict["match/full"].item())
         return np.mean(losses)
@@ -416,7 +427,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
     @torch.no_grad()
     def test_step(self, batch, idx):
         mix = batch["mix"].float()
-        mix_pred, _ = self.forward(batch, self.get_weight())
+        mix_pred, _, intermediate_outputs = self.forward(batch, self.get_weight())
         match_loss_dict = self.match_loss(mix, mix_pred)
         self.log_dict(**match_loss_dict)
         self.mix_pred_list.append(mix_pred.detach().cpu())
@@ -443,6 +454,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             plt.close(fig)
 
             self.transfer_batch_to_device(self.render_data, "cpu", 0)
+            print(self.graph_parameters)
             data = {
                 "parameters": self.graph_parameters.cpu(),
                 "weight": self.get_weight().cpu(),
