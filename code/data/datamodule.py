@@ -8,6 +8,8 @@ class SingleTrackOverfitDataModule(pl.LightningDataModule):
     def __init__(self, args):
         super().__init__()
         self.__dict__.update(**args)
+
+        
         self.common_dataset_kwargs = dict(
             dataset=self.dataset,
             song=self.song,

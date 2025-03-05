@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATASET_DIR="/home/soumya/Mixing_secrets_test_set/dataset"
+DATASET_DIR="/data3/share/soumya/Mixing_Secrets_Full"
 GPU_COUNT=4  # Number of GPUs available
 GPU_INDEX=0  # Start GPU index
 
@@ -11,7 +11,7 @@ for SONG in "$DATASET_DIR"/*/; do
     # Run the command in the background on a specific GPU
     CUDA_VISIBLE_DEVICES=$GPU_INDEX python3 train.py \
         config=prune_hybrid_1e_2 \
-        dataset=mixing_secrets_excerpts \
+        dataset=mixing_secrets_full \
         song="$SONG_NAME" &
 
     # Update GPU index in a round-robin fashion

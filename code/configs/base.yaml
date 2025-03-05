@@ -1,23 +1,27 @@
 project: grafx_prune # project name that will be used in wandb
-base_dir: /home/soumya/workspace/grafx_prune_test # base directory that logs are saved
+base_dir: /data4/soumya/workspace/grafx-prune  # base directory that logs are saved
 
 id: null
 debug: false
 wandb: true
+inference: false
+pickle_path: null
+save_intermediate_audio: false
 
 sr: 30000
 audio_len: 114000
 batch_size: 1
 steps_per_epoch: 500
-total_epochs: 24
+total_epochs: 1
 
-multiple_runs: false
+multiple_runs: True
 num_splits: 10
 split_id: 0
 datasets: 
-  - medley
-  - mixing_secrets
-  - mixing_secrets_excerpts
+  # - medley
+  # - mixing_secrets
+  # - mixing_secrets_excerpts
+  - mixing_secrets_full
 dataset_split: valid
 
 dataset: null

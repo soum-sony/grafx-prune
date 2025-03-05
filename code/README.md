@@ -35,9 +35,16 @@ CUDA_VISIBLE_DEVICES=0 python3 train.py \
     dataset=mixing_secrets_excerpts \
     song=DaimonB_AnotherLife2
 ```
-
+``` bash
+CUDA_VISIBLE_DEVICES=0 python3 train.py \ config=prune_hybrid_1e_2 \
+    dataset=mixing_secrets_full \
+    song='Africa'
+```
 
 To simply train a full mixing console, you can pass `config=mixing_console_full` instead.
 All the arguments can be overriden from the cli. For more details, see `configs/base.yaml`.
 
 ---
+```
+CUDA_VISIBLE_DEVICES=0 python3 train.py config=prune_hybrid_1e_2 dataset=mixing_secrets_excerpts song=DaimonB_AnotherLife2 debug=true inference=true pickle_path=/home/soumya/workspace/grafx_prune/mixing_secrets_excerpts_DaimonB_AnotherLife2/prune_hybrid_1e_2_result.pickle
+```

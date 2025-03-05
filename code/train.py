@@ -20,18 +20,9 @@ def create_log_directory(args):
     if args.debug:
         args.name = "debug"
     else:
-
-        print(args.song)
         song = args.song.replace("/", "_")
         args.name = f"{args.dataset}_{song}"
     args.save_dir = join(args.base_dir, args.name)
-    print(args.save_dir)
-    if os.path.exists(args.save_dir):
-        if args.debug:
-            os.system(f"rm -rf {args.save_dir}")
-        else:
-            print(f"Directory {args.save_dir} already exists")
-            return False
     os.makedirs(args.save_dir, exist_ok=True)
     return True
     
@@ -59,7 +50,7 @@ def run_train(args):
     torch.manual_seed(42)
     print(args)
     if create_log_directory(args):
-  
+        print("Created log directory")
         run, logger = setup_loggers(args)
 
         max_steps = args.total_epochs * args.steps_per_epoch
@@ -138,9 +129,21 @@ def setup_args():
     return args
 
 
+def inference(args):
+    torch.manual_seed(42)
+    create_log_directory(args)
+    args_cont = OmegaConf.to_container(args)
+    solver = MusicMixingConsoleSolver(args_cont).cuda()
+    datamodule = SingleTrackOverfitDataModule(args_cont)
+    solver.run_inference(args.pickle_path, datamodule)
+
+
 if __name__ == "__main__":
     args = setup_args()
-    if args.multiple_runs:
-        run_trains(args)
+    if args.inference:
+        inference(args)
     else:
-        run_train(args)
+        if args.multiple_runs:
+            run_trains(args)
+        else:
+            run_train(args)

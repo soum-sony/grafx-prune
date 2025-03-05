@@ -12,6 +12,10 @@ from data.mixing_secrets_excerpts.load import (
     get_mixing_secrets_excerpts_song_list,
     load_mixing_secrets_excerpts_metadata,
 )
+from data.mixing_secrets_full.load import (
+    get_mixing_secrets_full_song_list,
+    load_mixing_secrets_full_metadata,
+)
 
 def detach_base_dir(x, d=4):
     return "/".join(x.split("/")[-d:])
@@ -25,6 +29,8 @@ def load_metadata(dataset, song):
             return load_mixing_secrets_metadata(song)
         case "mixing_secrets_excerpts":
             return load_mixing_secrets_excerpts_metadata(song)
+        case "mixing_secrets_full":
+            return load_mixing_secrets_full_metadata(song)
         case _:
             assert False
 
@@ -43,15 +49,20 @@ def get_song_list(dataset, mode, min_num_inputs=0, max_num_inputs=150):
             return get_mixing_secrets_excerpts_song_list(
                 mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
             )
+        case "mixing_secrets_full":
+            return get_mixing_secrets_full_song_list(
+                mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
+            )
         case _:
             assert False
 
 
-def load_track(wav_dir, start, audio_len, sr=30000, half_precision=True):
+def load_track(wav_dir, start, audio_len, sr=30000, half_precision=False):
     """
     load a single wav track and return.
     start: read offset. if negative, left-pad zeros with that amount.
     """
+    
     try:
         frames = sf.info(wav_dir).frames
     except:
@@ -82,10 +93,19 @@ def load_track(wav_dir, start, audio_len, sr=30000, half_precision=True):
             wav = np.pad(wav, ((-start, 0), (0, 0)))
         if wav.shape[-1] == 1:
             wav = np.concatenate([wav, wav], -1)  # FORCED STEREO <- is this right?
+        if wav.shape[-1] > 2:
+        #average the channels
+            wav = np.mean(wav, axis=-1, keepdims=True)
+            # stereo it
+            wav = np.concatenate([wav, wav], -1)
         if wav_sr != sr:
             wav = librosa.resample(
                 wav.T, orig_sr=wav_sr, target_sr=sr, res_type="polyphase"
             ).T
+        # if the audio is shorter than audio_len, pad with zeros
+        if wav.shape[0] < audio_len:
+            wav = np.pad(wav, ((0, audio_len - wav.shape[0]), (0, 0)))
+    
 
     return wav
 
@@ -100,7 +120,7 @@ def load_song(
     omit_silent_tracks=False,
     start=None,
     as_tensor=True,
-    half_precision=True,
+    half_precision=False,
 ):
     data = {}
 
@@ -134,6 +154,7 @@ def load_song(
             )
             track = load_track(track_dir, source_start, audio_len, sr, half_precision)
             source_tracks.append(track)
+            
         if as_tensor:
             source_tracks = [
                 torch.tensor(x, dtype=torch.half if half_precision else torch.float).T
@@ -152,6 +173,9 @@ def load_song(
             mix = torch.tensor(
                 mix, dtype=torch.half if half_precision else torch.float
             ).T
+        # check if the len of mix is less than audio_len
+    
+    
         mix = mix[None, :, :]
         data["mix"] = mix
 

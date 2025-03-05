@@ -1,4 +1,5 @@
 import numpy as np
+# from data.load import load_metadata, load_song
 from data.load import load_metadata, load_song
 from torch.utils.data import Dataset
 
@@ -24,6 +25,8 @@ class SingleTrackDataset(Dataset):
         self.audio_len = audio_len
         self.sr = sr
         self.load_kwargs = load_kwargs
+        print(dataset)
+        print(song)
         self.metadata = load_metadata(dataset, song)
         self.eval_warmup = eval_warmup_sec * sr
         self.batch_size = batch_size
@@ -43,9 +46,11 @@ class SingleTrackDataset(Dataset):
         return data
 
     def __len__(self):
+        
         match self.mode:
             case "train":
                 return self.train_dataset_len * self.batch_size
             case "valid" | "test" | "all":
                 n = self.metadata["total_len"] / (self.audio_len - self.eval_warmup)
                 return int(np.ceil(n))
+

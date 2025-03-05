@@ -33,6 +33,7 @@ class MRSTFTLoss(nn.Module):
         if true.ndim > 3:
             true = true.view(-1, 2, audio_len)
         pred, true = pred[..., self.omit :], true[..., self.omit :]
+        # print(pred.shape, true.shape)
         full, lr_loss, sum_loss, diff_loss = self.loss(pred, true)
         loss_dict = {
             "match/full": full,
