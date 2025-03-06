@@ -86,7 +86,6 @@ def run_trains(args):
     for dataset in args.datasets:
         l = get_song_list(mode=args.dataset_split, dataset=dataset)
         song_list += [(dataset, song) for song in l]
-        print("song_list", song_list)
 
     rng = np.random.RandomState(0)
     rng.shuffle(song_list)
@@ -113,12 +112,10 @@ def setup_args():
     args = OmegaConf.load(base_config_dir)
 
     cli_args = OmegaConf.from_cli()
-    # print("cli_args", cli_args)
     if "config" in cli_args:
         config_name = cli_args.pop("config")
         config_dir = join(script_path, f"configs/{config_name}.yaml")
         config_args = OmegaConf.load(config_dir)
-        # print("config_args", config_args)
         args = OmegaConf.merge(args, config_args)
     args = OmegaConf.merge(args, cli_args)
 

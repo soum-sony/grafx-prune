@@ -74,9 +74,9 @@ def get_mixing_secrets_full_song_list(
         case "train":
             song_list = sorted(song_list[:n_train])
         case "valid":
-            song_list = sorted(song_list[n_train:n_train + n_valid])
+            song_list = sorted(song_list[n_train:n_valid])
         case "test":
-            song_list = sorted(song_list[n_train + n_valid:])
+            song_list = sorted(song_list[n_valid:])
         case "all":
             song_list = sorted(song_list)
         case _:

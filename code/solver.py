@@ -36,7 +36,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         if self.prune:
             self.init_pruning_data()
         self.match_loss = MRSTFTLoss()
-       
+
         self.automatic_optimization = False
 
     def init_audio_processors(self):
@@ -77,7 +77,6 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             )
 
         self.audio_processors = nn.ModuleDict(audio_processors)
-        
 
     def init_graph_and_parameters(self):
         self.node_configs = NodeConfigs(self.processors)
@@ -100,6 +99,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             fixed_order=self.render_order,
         )
         fig, _ = draw_grafx(self.G, node_above="rendering_order")
+        print(self.id)
         save_path = join(self.save_dir, f"{self.id}_full.pdf")
         fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
         plt.close(fig)
@@ -259,9 +259,6 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         if idx % self.num_steps_per_log == 0:
             weight_dict = self.log_weight()
             self.log_dict(**match_loss_dict, **reg_loss_dict, **weight_dict)
-        
-    
-
 
         return total_loss
 
@@ -457,12 +454,7 @@ class MusicMixingConsoleSolver(pl.LightningModule):
 
         sf.write(join(self.save_dir, "orig.wav"), mix, self.sr)
         sf.write(join(self.save_dir, f"{self.id}_pred.wav"), mix_pred, self.sr)
-        # log audio to wandb
-       
-        # self.logger.log({
-        #         "predicted_mix": wandb.Audio(mix_pred.cpu(), sample_rate=44100),  # Log predicted mix audio
-        #         "ground_truth_mix": wandb.Audio(mix.cpu(), sample_rate=44100),    # Log ground truth mix audio
-        #     })
+
         if self.prune:
             fig, _ = draw_grafx(self.G, node_above="rendering_order")
             save_path = join(self.save_dir, f"{self.id}_pruned.pdf")
@@ -470,7 +462,6 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             plt.close(fig)
 
             self.transfer_batch_to_device(self.render_data, "cpu", 0)
-            print(self.graph_parameters)
             data = {
                 "parameters": self.graph_parameters.cpu(),
                 "weight": self.get_weight().cpu(),
@@ -483,8 +474,6 @@ class MusicMixingConsoleSolver(pl.LightningModule):
             pickle.dump(
                 data, open(pickle_path, "wb")
             )
-        # if self.save_intermediate_audio:
-        #     self.run_inference(pickle_path, self.trainer.datamodule)
 
     def configure_optimizers(self):
         opt = torch.optim.AdamW(
@@ -594,9 +583,3 @@ class MusicMixingConsoleSolver(pl.LightningModule):
         save_path = join(self.save_dir, f"{self.id}_graph_node_id.pdf")
         fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
         plt.close(fig)
-
-        # save a pdf with the name of tracks going to each input node
-        # fig, _ = draw_grafx(G, node_above="name")
-        # save_path = join(self.save_dir, f"{self.id}_graph_name.pdf")
-        # fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
-        # plt.close(fig)

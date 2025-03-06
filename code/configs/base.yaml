@@ -12,20 +12,21 @@ sr: 30000
 audio_len: 114000
 batch_size: 1
 steps_per_epoch: 500
-total_epochs: 1
+total_epochs: 20
 
 multiple_runs: True
-num_splits: 10
-split_id: 0
+num_splits: 4
+split_id: 3
 datasets: 
   # - medley
   # - mixing_secrets
   # - mixing_secrets_excerpts
   - mixing_secrets_full
-dataset_split: valid
+dataset_split: all
 
 dataset: null
 song: null
+
 
 processors: 
   - eq
