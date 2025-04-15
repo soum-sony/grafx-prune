@@ -18,13 +18,15 @@ def get_name(dataset, song, wav_dir):
             return basename(wav_dir).replace(".wav", "")
         case "mixing_secrets_full":
             return basename(wav_dir).replace(".wav", "")
+        case "mixing_secrets_forum":
+            return basename(wav_dir).replace(".wav", "")
         case _:
             assert False
 
 
 def detach_base_dir(x, dataset):
     match dataset:
-        case "medley" | "mixing_secrets" | "mixing_secrets_excerpts" | "mixing_secrets_full":
+        case "medley" | "mixing_secrets" | "mixing_secrets_excerpts" | "mixing_secrets_full" | "mixing_secrets_forum":
             return basename(x)
         case _:
             assert False
@@ -61,6 +63,7 @@ def construct_mixing_console(
     # mix insert chains
     dry_track_dirs = [detach_base_dir(d, dataset) for d in matched_dry_track_dirs]
     matched_correspondences = correspondence_data["matched"]
+    # print("matched_correspondences", matched_correspondences)
     multi_tracks = list(matched_correspondences.keys())
     multi_outs = []
     for multi_track in multi_tracks:

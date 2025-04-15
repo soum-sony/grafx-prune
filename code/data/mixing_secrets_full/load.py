@@ -25,7 +25,7 @@ def check_song(song, min_num_inputs=0, max_num_inputs=150):
         return False
     # print("song", basename(song))
     # check if the song has already been processed
-    log_dir = "/data4/soumya/workspace/grafx-prune"
+    log_dir = "/data4/soumya/workspace/grafx-prune-new"
     if isfile(join(log_dir, f"mixing_secrets_full_{basename(song)}","prune_hybrid_1e_2_result.pickle" )):
         return False
 

@@ -17,6 +17,11 @@ from data.mixing_secrets_full.load import (
     load_mixing_secrets_full_metadata,
 )
 
+from data.mixing_secrets_forum.load import (
+    get_mixing_secrets_forum_song_list,
+    load_mixing_secrets_forum_metadata,
+)
+
 def detach_base_dir(x, d=4):
     return "/".join(x.split("/")[-d:])
 
@@ -31,6 +36,8 @@ def load_metadata(dataset, song):
             return load_mixing_secrets_excerpts_metadata(song)
         case "mixing_secrets_full":
             return load_mixing_secrets_full_metadata(song)
+        case "mixing_secrets_forum":
+            return load_mixing_secrets_forum_metadata(song)
         case _:
             assert False
 
@@ -51,6 +58,10 @@ def get_song_list(dataset, mode, min_num_inputs=0, max_num_inputs=150):
             )
         case "mixing_secrets_full":
             return get_mixing_secrets_full_song_list(
+                mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
+            )
+        case "mixing_secrets_forum":
+            return get_mixing_secrets_forum_song_list(
                 mode, min_num_inputs=min_num_inputs, max_num_inputs=max_num_inputs
             )
         case _:

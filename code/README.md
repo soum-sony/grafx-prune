@@ -36,7 +36,7 @@ CUDA_VISIBLE_DEVICES=0 python3 train.py \
     song=DaimonB_AnotherLife2
 ```
 ``` bash
-CUDA_VISIBLE_DEVICES=3 python3 train.py \
+CUDA_VISIBLE_DEVICES=1 python3 train.py \
     config=prune_hybrid_1e_2 \
     dataset=mixing_secrets_full \
     song=DaimonB_AnotherLife2
